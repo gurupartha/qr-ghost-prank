@@ -31,7 +31,8 @@ class QRGhostPrank {
             return;
         }
         
-        this.checkLinkExpiration();
+        // No expiry - QR code works forever for unlimited users
+        console.log('🎃 QR Ghost Prank ready - No expiry, unlimited users!');
         this.bindEvents();
         this.showLoadingScreen();
         
@@ -44,6 +45,12 @@ class QRGhostPrank {
     }
 
     checkLinkExpiration() {
+        // DISABLED: No expiry system - QR code works forever!
+        console.log('✅ Static QR: No expiry, works for unlimited users forever!');
+        return; // Exit early - no expiry checks
+        
+        /* ORIGINAL EXPIRY CODE DISABLED:
+        /* ORIGINAL EXPIRY CODE DISABLED:
         const EXPIRATION_TIME = 10 * 60 * 1000; // 10 minutes in milliseconds
         const currentTime = new Date().getTime();
         
@@ -82,6 +89,7 @@ class QRGhostPrank {
             this.linkExpired = true;
             this.showExpiredScreen();
         }, remainingTime);
+        */
     }
 
     bindEvents() {
