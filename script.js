@@ -19,27 +19,26 @@ class QRGhostPrank {
     init() {
         console.log('🚀 Initializing Ghost Prank...');
         
-        // Enable mobile audio compatibility
-        this.enableMobileAudio();
-        
         // Check browser support first
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             console.error('❌ Browser does not support camera access');
             this.showErrorScreen('❌ Your browser does not support camera access. Please use a modern browser like Chrome, Firefox, or Safari.');
             return;
         }
-
+        
         this.checkLinkExpiration();
         this.bindEvents();
         this.showLoadingScreen();
-
+        
         console.log('⏱️ Starting camera request...');
-
+        
         // Force immediate camera access with debug
         this.requestCameraPermission().catch(err => {
             console.error('💥 Initial camera request failed:', err);
         });
-    }    checkLinkExpiration() {
+    }
+
+    checkLinkExpiration() {
         const EXPIRATION_TIME = 10 * 60 * 1000; // 10 minutes in milliseconds
         const currentTime = new Date().getTime();
         
@@ -440,66 +439,20 @@ class QRGhostPrank {
     }
 
     playScarySounds() {
-        console.log('🔊 Playing scary sounds for all devices...');
+        // Create multiple audio contexts for layered scary sounds
+        this.createScarySound(200, 0.5, 'sine'); // Low ominous tone
+        this.createScarySound(800, 0.3, 'sawtooth'); // Sharp screech
+        this.createScarySound(1200, 0.2, 'square'); // Digital noise
         
-        // Try mobile-compatible beeps first
-        this.playMobileBeeps();
+        // Play static/white noise
+        setTimeout(() => {
+            this.createWhiteNoise(1, 0.4);
+        }, 500);
         
-        // Then desktop enhanced sounds
-        try {
-            this.createScarySound(200, 0.5, 'sine');
-            this.createScarySound(800, 0.3, 'sawtooth');
-            this.createScarySound(1200, 0.2, 'square');
-            
-            setTimeout(() => {
-                this.createWhiteNoise(1, 0.4);
-            }, 500);
-            
-            setTimeout(() => {
-                this.createScarySound(300, 0.6, 'triangle');
-            }, 1000);
-        } catch (error) {
-            console.warn('Advanced audio failed:', error);
-        }
-        
-        // Add vibration for mobile
-        if (navigator.vibrate) {
-            navigator.vibrate([200, 100, 400, 100, 600, 200, 800]);
-        }
-    }
-
-    playMobileBeeps() {
-        console.log('📱 Playing mobile-compatible beeps...');
-        
-        const playBeep = (freq, duration, delay = 0) => {
-            setTimeout(() => {
-                try {
-                    const audioCtx = this.audioContext || new (window.AudioContext || window.webkitAudioContext)();
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-                    
-                    osc.frequency.value = freq;
-                    osc.type = 'square';
-                    
-                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-                    
-                    osc.start(audioCtx.currentTime);
-                    osc.stop(audioCtx.currentTime + duration);
-                } catch (e) {
-                    console.warn('Beep failed:', e);
-                }
-            }, delay);
-        };
-        
-        // Play scary beep sequence
-        playBeep(150, 1.5, 0);      // Deep growl
-        playBeep(800, 0.8, 600);    // Sharp screech
-        playBeep(400, 1.2, 1200);   // Mid tone
-        playBeep(1200, 0.5, 1800);  // High pitch
+        // Add tremolo effect
+        setTimeout(() => {
+            this.createScarySound(300, 0.6, 'triangle');
+        }, 1000);
     }
 
     createScarySound(frequency, duration, type = 'sine') {
