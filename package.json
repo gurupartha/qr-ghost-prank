@@ -1,0 +1,31 @@
+{
+  "name": "qr-ghost-prank",
+  "version": "1.0.0",
+  "description": "A spooky QR code prank that captures photos and applies ghost effects",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "dev": "python -m http.server 8000",
+    "build": "echo 'No build process needed - static files only'",
+    "deploy": "echo 'Deploy to GitHub Pages, Netlify, or Vercel'"
+  },
+  "keywords": [
+    "qr-code",
+    "prank",
+    "ghost",
+    "camera",
+    "javascript",
+    "html5",
+    "web-app"
+  ],
+  "author": "QR Ghost Prank Creator",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR-USERNAME/qr-ghost-prank.git"
+  },
+  "homepage": "https://YOUR-USERNAME.github.io/qr-ghost-prank",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
