@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Ghost Prank</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="screen">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h2>Preparing Camera...</h2>
+            <p>Getting ready for your ghost experience</p>
+            <button id="debug-camera" class="btn-primary" style="margin-top: 20px;">🔧 Force Camera Now</button>
+        </div>
+    </div>
+
+    <!-- Camera Screen -->
+    <div id="camera-screen" class="screen hidden">
+        <div class="camera-container">
+            <video id="camera-feed" autoplay muted playsinline></video>
+            <div id="countdown" class="countdown hidden">3</div>
+            <canvas id="capture-canvas" class="hidden"></canvas>
+        </div>
+        <div class="camera-controls">
+            <div class="status">Preparing camera...</div>
+        </div>
+    </div>
+
+    <!-- Ghost Effect Screen -->
+    <div id="ghost-screen" class="screen hidden">
+        <div class="ghost-container">
+            <canvas id="ghost-canvas"></canvas>
+            <audio id="scare-audio" preload="auto">
+                <!-- Fallback for browsers without audio support -->
+                Your browser doesn't support audio playback.
+            </audio>
+        </div>
+    </div>
+
+    <!-- Expired Link Screen -->
+    <div id="expired-screen" class="screen hidden">
+        <div class="expired-content">
+            <div class="warning-icon">⚠️</div>
+            <h1>Link Expired</h1>
+            <p>This prank link has expired and is no longer available.</p>
+        </div>
+    </div>
+
+    <!-- Error Screen -->
+    <div id="error-screen" class="screen hidden">
+        <div class="error-content">
+            <div class="error-icon">❌</div>
+            <h2>Oops! Something went wrong</h2>
+            <p id="error-message">An unexpected error occurred.</p>
+            <button id="retry-btn" class="btn-secondary">Try Camera Again</button>
+            <button id="manual-btn" class="btn-primary hidden">Take Photo Manually</button>
+            <button id="demo-btn" class="btn-primary">🎭 Demo Mode (No Camera)</button>
+            <input type="file" id="photo-upload" accept="image/*" capture="user" class="hidden">
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

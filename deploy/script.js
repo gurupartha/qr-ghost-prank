@@ -6,14 +6,9 @@ class QRGhostPrank {
         this.countdownTimer = null;
         this.cameraAttempts = 0;
         this.ghostImages = [
-            // Demon face with red eyes
-            'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTAwIiByPSI5MCIgZmlsbD0iIzAwMDAwMCIgZmlsbC1vcGFjaXR5PSIwLjkiLz48Y2lyY2xlIGN4PSI3MCIgY3k9IjgwIiByPSIxNSIgZmlsbD0iI0ZGMDAwMCIvPjxjaXJjbGUgY3g9IjEzMCIgY3k9IjgwIiByPSIxNSIgZmlsbD0iI0ZGMDAwMCIvPjxwYXRoIGQ9Ik04MCAzMCBMMTAwIDUwIEwxMjAgMzAiIHN0cm9rZT0iI0ZGMDAwMCIgc3Ryb2tlLXdpZHRoPSI1Ii8+PHBhdGggZD0iTTgwIDEyMCBMMTIwIDEyMCBMMTEwIDE0MCBMOTA1IDE0MCBaIiBmaWxsPSIjRkYwMDAwIi8+PC9zdmc+',
-            // Scary skull
-            'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGVsbGlwc2UgY3g9IjEwMCIgY3k9IjEwMCIgcng9Ijg1IiByeT0iOTAiIGZpbGw9IiNGRkZGRkYiIGZpbGwtb3BhY2l0eT0iMC45Ii8+PGVsbGlwc2UgY3g9IjgwIiBjeT0iODAiIHJ4PSIxNSIgcnk9IjI1IiBmaWxsPSIjMDAwMDAwIi8+PGVsbGlwc2UgY3g9IjEyMCIgY3k9IjgwIiByeD0iMTUiIHJ5PSIyNSIgZmlsbD0iIzAwMDAwMCIvPjxyZWN0IHg9Ijk1IiB5PSIxMDAiIHdpZHRoPSIxMCIgaGVpZ2h0PSIyMCIgZmlsbD0iIzAwMDAwMCIvPjxyZWN0IHg9Ijg1IiB5PSIxMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjgiIGZpbGw9IiMwMDAwMDAiLz48cmVjdCB4PSI5NSIgeT0iMTMwIiB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBmaWxsPSIjMDAwMDAwIi8+PHJlY3QgeD0iMTA1IiB5PSIxMzAiIHdpZHRoPSI4IiBoZWlnaHQ9IjgiIGZpbGw9IiMwMDAwMDAiLz48L3N2Zz4=',
-            // Ghostly apparition
-            'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGZpbHRlciBpZD0iZ2xvdyI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMyIvPjwvZmlsdGVyPjwvZGVmcz48cGF0aCBkPSJNMTAwIDIwIEM2MCA0MCA0MCA4MCA0MCAxMjAgQzQwIDE2MCA2MCAyMDAgMTAwIDIwMCBDMTQwIDIwMCAxNjAgMTYwIDE2MCAxMjAgQzE2MCA4MCA0MCA0MCA2MCA0MCA4MCA0MCAxMDAgMjAiIGZpbGw9IiNGRkZGRkYiIGZpbGwtb3BhY2l0eT0iMC43IiBmaWx0ZXI9InVybCgjZ2xvdykiLz48Y2lyY2xlIGN4PSI4NSIgY3k9IjkwIiByPSI4IiBmaWxsPSIjMDAwMDAwIi8+PGNpcmNsZSBjeD0iMTE1IiBjeT0iOTAiIHI9IjgiIGZpbGw9IiMwMDAwMDAiLz48cGF0aCBkPSJNODUgMTIwIFExMDAgMTMwIDExNSAxMjAiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIi8+PC9zdmc+',
-            // Dark shadow figure
-            'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEwMCAyMCBDNDAgNDAgMjAgODAgMjAgMTIwIEMyMCAxODAgNjAgMjAwIDEwMCAyMDAgQzE0MCAyMDAgMTgwIDE4MCAxODAgMTIwIEMxODAgODAgMTYwIDQwIDEwMCAyMCIgZmlsbD0iIzAwMDAwMCIgZmlsbC1vcGFjaXR5PSIwLjgiLz48ZWxsaXBzZSBjeD0iODAiIGN5PSI5MCIgcng9IjEwIiByeT0iMTUiIGZpbGw9IiNGRjAwMDAiLz48ZWxsaXBzZSBjeD0iMTIwIiBjeT0iOTAiIHJ4PSIxMCIgcnk9IjE1IiBmaWxsPSIjRkYwMDAwIi8+PHBhdGggZD0iTTcwIDEyNSBMMTMwIDEyNSBMMTIwIDE1MCBMODA5IDE1MCBaIiBmaWxsPSIjRkYwMDAwIi8+PC9zdmc+'
+            'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iOTAiIGZpbGw9IiNGRkZGRkYiIGZpbGwtb3BhY2l0eT0iMC44Ii8+CjxjaXJjbGUgY3g9IjcwIiBjeT0iODAiIHI9IjgiIGZpbGw9IiMwMDAwMDAiLz4KPGNpcmNsZSBjeD0iMTMwIiBjeT0iODAiIHI9IjgiIGZpbGw9IiMwMDAwMDAiLz4KPHBhdGggZD0iTTcwIDEyMCBRMTAwIDEzMCAxMzAgMTIwIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMyIgZmlsbD0ibm9uZSIvPgo8L3N2Zz4=',
+            'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xMDAgMjAgQzE0MCA0MCAzMCA2MCAzMCAxMDAgQzMwIDEzMCA0MCAyMDAgMTAwIDIwMCBDMTYwIDIwMCAxNzAgMTMwIDE3MCAxMDAgQzE3MCA2MCA2MCA0MCAxMDAgMjAiIGZpbGw9IiNGRkZGRkYiIGZpbGwtb3BhY2l0eT0iMC45Ii8+CjxjaXJjbGUgY3g9IjgwIiBjeT0iOTAiIHI9IjEwIiBmaWxsPSIjRkYwMDAwIi8+CjxjaXJjbGUgY3g9IjEyMCIgY3k9IjkwIiByPSIxMCIgZmlsbD0iI0ZGMDAwMCIvPgo8cGF0aCBkPSJNNzAgMTMwIEwxMzAgMTMwIEwxMjAgMTQwIEw4MCAxNDAiIGZpbGw9IiMwMDAwMDAiLz4KPC9zdmc+',
+            'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxlbGxpcHNlIGN4PSIxMDAiIGN5PSIxMDAiIHJ4PSI4MCIgcnk9IjkwIiBmaWxsPSIjRkZGRkZGIiBmaWxsLW9wYWNpdHk9IjAuOCIvPgo8cG9seWdvbiBwb2ludHM9IjgwLDcwIDkwLDkwIDcwLDkwIiBmaWxsPSIjMDAwMDAwIi8+Cjxwb2x5Z29uIHBvaW50cz0iMTIwLDcwIDEzMCw5MCAxMTAsOTAiIGZpbGw9IiMwMDAwMDAiLz4KPHBhdGggZD0iTTcwIDEyMCBMMTMwIDEyMCBMMTI1IDEzNSBMNzUgMTM1IFoiIGZpbGw9IiMwMDAwMDAiLz4KPC9zdmc+'
         ];
         
         this.scaryAudioData = 'data:audio/wav;base64,UklGRh4AAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQoAAAC1s7KytbO0s7O0s7Ozs7O0s7O0s7O0';
@@ -186,51 +181,60 @@ class QRGhostPrank {
     }
 
     async requestCameraPermission() {
-        console.log('🎥 Attempting immediate camera access...');
+        console.log('📷 Requesting camera permission...');
         
-        // Multiple aggressive camera constraints
-        const constraints = [
-            { video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }},
-            { video: { facingMode: 'user', width: { min: 640 }, height: { min: 480 } }},
-            { video: { facingMode: 'environment' }},
-            { video: { facingMode: 'user' }},
-            { video: { width: { ideal: 1920 }, height: { ideal: 1080 } }},
-            { video: { width: { ideal: 1280 }, height: { ideal: 720 } }},
-            { video: { width: { min: 320 }, height: { min: 240 } }},
-            { video: true },
-            { video: { deviceId: 'default' }}
-        ];
+        try {
+            // Check if we're on HTTPS or localhost
+            const isSecure = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+            console.log('🔒 Secure context:', isSecure, 'Protocol:', location.protocol, 'Hostname:', location.hostname);
+            
+            if (!isSecure && location.hostname !== '127.0.0.1' && location.hostname !== 'localhost') {
+                throw new Error('Insecure context - HTTPS required');
+            }
 
-        // Try each constraint rapidly
-        for (let i = 0; i < constraints.length; i++) {
-            try {
-                console.log(`🎯 Trying camera constraint ${i + 1}/${constraints.length}`);
-                this.stream = await navigator.mediaDevices.getUserMedia(constraints[i]);
-                
-                if (this.stream) {
-                    console.log('✅ Camera access granted!');
-                    this.showCameraScreen();
-                    this.startCamera();
-                    return this.stream;
+            // Simpler constraint first
+            console.log('🎯 Requesting camera with basic constraints...');
+            
+            const constraints = { 
+                video: { 
+                    facingMode: 'user'
+                }, 
+                audio: false 
+            };
+            
+            console.log('📋 Using constraints:', constraints);
+            
+            this.stream = await navigator.mediaDevices.getUserMedia(constraints);
+            console.log('✅ Camera access granted!', this.stream);
+            
+            this.showCameraScreen();
+            this.startCamera();
+            
+        } catch (error) {
+            console.error('❌ Camera permission denied or error:', error);
+            this.cameraAttempts++;
+            
+            let errorMsg = '🎭 Camera access needed! ';
+            if (error.name === 'NotAllowedError') {
+                errorMsg += 'Please click "Allow" when your browser asks for camera permission.';
+            } else if (error.name === 'NotFoundError') {
+                errorMsg += 'No camera found. Please connect a camera or use manual photo option.';
+            } else if (error.name === 'NotSupportedError') {
+                errorMsg += 'Camera not supported. Please try a different browser or use manual photo option.';
+            } else {
+                errorMsg += error.message || 'Unknown error occurred.';
+            }
+            
+            this.showErrorScreen(errorMsg);
+            
+            // Always show manual option as backup
+            setTimeout(() => {
+                const manualBtn = document.getElementById('manual-btn');
+                if (manualBtn) {
+                    manualBtn.classList.remove('hidden');
                 }
-            } catch (error) {
-                console.warn(`❌ Constraint ${i + 1} failed:`, error.message);
-                continue;
-            }
+            }, 2000);
         }
-        
-        // If all fail, skip to error screen with manual option
-        console.error('❌ All camera access attempts failed');
-        this.showErrorScreen('📸 Camera unavailable! Use manual photo option below:');
-        
-        // Always show manual option as backup
-        setTimeout(() => {
-            const manualBtn = document.getElementById('manual-btn');
-            if (manualBtn) {
-                manualBtn.style.display = 'block';
-                manualBtn.classList.remove('hidden');
-            }
-        }, 1000);
     }
 
     startCamera() {
@@ -377,58 +381,36 @@ class QRGhostPrank {
             // Draw the captured image to cover the entire canvas
             ctx.drawImage(capturedImg, 0, 0, canvas.width, canvas.height);
 
-            // Apply dark horror filter first
-            ctx.globalCompositeOperation = 'multiply';
-            ctx.globalAlpha = 0.7;
-            ctx.fillStyle = '#330000'; // Dark red tint
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
             // Select random ghost image
             const randomGhostIndex = Math.floor(Math.random() * this.ghostImages.length);
             const ghostImg = new Image();
             
             ghostImg.onload = () => {
-                // Reset composition mode for ghost overlay
-                ctx.globalCompositeOperation = 'source-over';
-                ctx.globalAlpha = 0.9;
+                // Apply ghost overlay with blend modes
+                ctx.globalCompositeOperation = 'overlay';
+                ctx.globalAlpha = 0.7;
                 
-                // Draw multiple ghosts for maximum horror
+                // Draw ghost in multiple positions for scary effect
                 const positions = [
-                    { x: canvas.width * 0.05, y: canvas.height * 0.05, size: 0.4, rotation: -15 },
-                    { x: canvas.width * 0.6, y: canvas.height * 0.1, size: 0.5, rotation: 10 },
-                    { x: canvas.width * 0.2, y: canvas.height * 0.4, size: 0.6, rotation: -5 },
-                    { x: canvas.width * 0.75, y: canvas.height * 0.6, size: 0.4, rotation: 20 },
-                    { x: canvas.width * 0.1, y: canvas.height * 0.7, size: 0.3, rotation: -10 }
+                    { x: canvas.width * 0.1, y: canvas.height * 0.1, size: 0.3 },
+                    { x: canvas.width * 0.6, y: canvas.height * 0.2, size: 0.4 },
+                    { x: canvas.width * 0.3, y: canvas.height * 0.5, size: 0.5 },
+                    { x: canvas.width * 0.8, y: canvas.height * 0.7, size: 0.3 }
                 ];
 
-                positions.forEach((pos, index) => {
+                positions.forEach(pos => {
                     const size = Math.min(canvas.width, canvas.height) * pos.size;
-                    
-                    ctx.save();
-                    ctx.translate(pos.x + size/2, pos.y + size/2);
-                    ctx.rotate(pos.rotation * Math.PI / 180);
-                    
-                    // Add glow effect
-                    ctx.shadowColor = index % 2 === 0 ? '#ff0000' : '#000000';
-                    ctx.shadowBlur = 20;
-                    ctx.shadowOffsetX = 5;
-                    ctx.shadowOffsetY = 5;
-                    
-                    ctx.drawImage(ghostImg, -size/2, -size/2, size, size);
-                    ctx.restore();
+                    ctx.drawImage(ghostImg, pos.x, pos.y, size, size);
                 });
 
-                // Add blood-like drips
-                this.addBloodDrops(ctx);
-                
-                // Add scary text overlay
-                this.addScaryText(ctx);
-                
-                // Add film grain/noise effect
-                this.addFilmGrain(ctx);
-                
-                // Add screen shake effect
-                this.addScreenShake();
+                // Add scary red overlay
+                ctx.globalCompositeOperation = 'multiply';
+                ctx.globalAlpha = 0.3;
+                ctx.fillStyle = '#ff0000';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Add noise effect
+                this.addNoiseEffect(ctx);
                 
                 // Show the final result
                 this.showGhostScreen();
@@ -456,228 +438,21 @@ class QRGhostPrank {
         ctx.putImageData(imageData, 0, 0);
     }
 
-    addBloodDrops(ctx) {
-        // Add blood drip effect
-        ctx.fillStyle = '#8B0000';
-        ctx.globalAlpha = 0.8;
-        
-        for (let i = 0; i < 20; i++) {
-            const x = Math.random() * ctx.canvas.width;
-            const y = Math.random() * ctx.canvas.height * 0.8;
-            const width = 3 + Math.random() * 8;
-            const height = 20 + Math.random() * 60;
-            
-            // Create drip shape
-            ctx.beginPath();
-            ctx.ellipse(x, y, width/2, height/2, 0, 0, 2 * Math.PI);
-            ctx.fill();
-            
-            // Add droplet at the bottom
-            ctx.beginPath();
-            ctx.arc(x, y + height/2 + 5, width/3, 0, 2 * Math.PI);
-            ctx.fill();
-        }
-    }
-
-    addScaryText(ctx) {
-        const scaryMessages = [
-            'YOU ARE NOT ALONE',
-            'BEHIND YOU',
-            'THEY\'RE WATCHING',
-            'RUN...',
-            'DON\'T LOOK BACK',
-            'I SEE YOU'
-        ];
-        
-        const message = scaryMessages[Math.floor(Math.random() * scaryMessages.length)];
-        
-        ctx.font = `${Math.min(ctx.canvas.width, ctx.canvas.height) * 0.08}px serif`;
-        ctx.fillStyle = '#FF0000';
-        ctx.strokeStyle = '#000000';
-        ctx.lineWidth = 2;
-        ctx.textAlign = 'center';
-        ctx.globalAlpha = 0.9;
-        
-        // Add glow effect to text
-        ctx.shadowColor = '#FF0000';
-        ctx.shadowBlur = 10;
-        
-        const x = ctx.canvas.width / 2;
-        const y = ctx.canvas.height * 0.9;
-        
-        ctx.strokeText(message, x, y);
-        ctx.fillText(message, x, y);
-        
-        // Reset shadow
-        ctx.shadowBlur = 0;
-    }
-
-    addFilmGrain(ctx) {
-        const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
-        const data = imageData.data;
-        
-        // Add film grain effect
-        for (let i = 0; i < data.length; i += 4) {
-            const grain = (Math.random() - 0.5) * 60;
-            data[i] += grain;     // Red
-            data[i + 1] += grain; // Green
-            data[i + 2] += grain; // Blue
-        }
-        
-        ctx.putImageData(imageData, 0, 0);
-    }
-
-    addScreenShake() {
-        const ghostScreen = document.getElementById('ghost-screen');
-        let shakeCount = 0;
-        const maxShakes = 15;
-        
-        const shake = () => {
-            if (shakeCount < maxShakes) {
-                const x = (Math.random() - 0.5) * 20;
-                const y = (Math.random() - 0.5) * 20;
-                ghostScreen.style.transform = `translate(${x}px, ${y}px)`;
-                
-                setTimeout(() => {
-                    shakeCount++;
-                    shake();
-                }, 100);
-            } else {
-                ghostScreen.style.transform = 'translate(0, 0)';
-            }
-        };
-        
-        shake();
-    }
-
     playScarySounds() {
-        console.log('🔊 Playing enhanced scary sounds...');
+        // Create multiple audio contexts for layered scary sounds
+        this.createScarySound(200, 0.5, 'sine'); // Low ominous tone
+        this.createScarySound(800, 0.3, 'sawtooth'); // Sharp screech
+        this.createScarySound(1200, 0.2, 'square'); // Digital noise
         
-        // Multiple layered scary sounds for maximum effect
-        this.createScarySound(150, 3, 'sawtooth'); // Deep growl
-        this.createScarySound(800, 2, 'square'); // Sharp screech
-        this.createScarySound(1200, 1.5, 'triangle'); // High pitched scream
-        
-        // Demonic laughter effect
+        // Play static/white noise
         setTimeout(() => {
-            this.createLaughterEffect();
+            this.createWhiteNoise(1, 0.4);
         }, 500);
         
-        // Heartbeat sound
+        // Add tremolo effect
         setTimeout(() => {
-            this.createHeartbeatEffect();
+            this.createScarySound(300, 0.6, 'triangle');
         }, 1000);
-        
-        // Static/white noise for horror atmosphere
-        setTimeout(() => {
-            this.createWhiteNoise(4, 0.6);
-        }, 200);
-        
-        // Whisper effect
-        setTimeout(() => {
-            this.createWhisperEffect();
-        }, 1500);
-    }
-
-    createLaughterEffect() {
-        try {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            
-            // Create demonic laughter pattern
-            const frequencies = [300, 350, 280, 320, 290, 330];
-            frequencies.forEach((freq, index) => {
-                setTimeout(() => {
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-                    
-                    oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
-                    oscillator.type = 'sawtooth';
-                    
-                    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.3, audioContext.currentTime + 0.05);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-                    
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.2);
-                }, index * 150);
-            });
-        } catch (error) {
-            console.warn('Laughter effect not supported:', error);
-        }
-    }
-
-    createHeartbeatEffect() {
-        try {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            
-            // Create heartbeat pattern: thump-thump... thump-thump...
-            for (let i = 0; i < 6; i++) {
-                setTimeout(() => {
-                    // First beat
-                    this.createSingleBeat(audioContext, 80, 0.4);
-                    // Second beat (slightly higher)
-                    setTimeout(() => {
-                        this.createSingleBeat(audioContext, 90, 0.3);
-                    }, 150);
-                }, i * 800);
-            }
-        } catch (error) {
-            console.warn('Heartbeat effect not supported:', error);
-        }
-    }
-
-    createSingleBeat(audioContext, frequency, volume) {
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-        oscillator.type = 'sine';
-        
-        gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-        
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.1);
-    }
-
-    createWhisperEffect() {
-        try {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            
-            // Create eerie whisper-like sound
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            const filter = audioContext.createBiquadFilter();
-            
-            oscillator.connect(filter);
-            filter.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillator.frequency.setValueAtTime(150, audioContext.currentTime);
-            oscillator.type = 'sawtooth';
-            
-            filter.type = 'highpass';
-            filter.frequency.setValueAtTime(2000, audioContext.currentTime);
-            
-            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.5);
-            gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 2);
-            
-            // Add frequency modulation for whisper effect
-            oscillator.frequency.linearRampToValueAtTime(200, audioContext.currentTime + 1);
-            oscillator.frequency.linearRampToValueAtTime(100, audioContext.currentTime + 2);
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 2);
-        } catch (error) {
-            console.warn('Whisper effect not supported:', error);
-        }
     }
 
     createScarySound(frequency, duration, type = 'sine') {

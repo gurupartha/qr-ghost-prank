@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator - Ghost Prank</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            max-width: 600px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            color: #ff6b6b;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .qr-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 30px auto;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .qr-code {
+            width: 250px;
+            height: 250px;
+            border: none;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        #qrcode-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .qr-fallback {
+            background: #f0f0f0;
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .instructions {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #ff6b6b;
+        }
+        
+        .url-display {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 1.1rem;
+            word-break: break-all;
+            margin: 15px 0;
+            border: 1px solid #ff6b6b;
+        }
+        
+        .warning {
+            background: rgba(255, 107, 107, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            border: 1px solid #ff6b6b;
+        }
+        
+        .status {
+            color: #4ecdc4;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👻 QR Ghost Prank Tester</h1>
+        
+        <div class="status">✅ Local Server Running on Port 8000</div>
+        
+        <div class="url-display">
+            <strong>Local URL:</strong><br>
+            http://localhost:8000
+        </div>
+        
+        <div class="qr-container">
+            <div id="qrcode-container"></div>
+            <img id="qrCode" class="qr-code hidden" alt="QR Code for Ghost Prank">
+        </div>
+        
+        <div class="instructions">
+            <h3>📱 Testing Instructions:</h3>
+            <ol style="text-align: left;">
+                <li><strong>Mobile Testing:</strong> Scan the QR code with your mobile device</li>
+                <li><strong>Desktop Testing:</strong> Click the button below to open directly</li>
+                <li><strong>Camera Permission:</strong> Allow camera access when prompted</li>
+                <li><strong>Test Features:</strong> Photo capture, ghost effects, and scary sounds</li>
+                <li><strong>Expiry Test:</strong> Link expires after 10 minutes</li>
+            </ol>
+        </div>
+        
+        <button class="btn" onclick="window.open('http://localhost:8000', '_blank')">
+            🖥️ Open Prank in New Tab
+        </button>
+        
+        <button class="btn" onclick="copyUrl()">
+            📋 Copy URL
+        </button>
+        
+        <div class="warning">
+            ⚠️ <strong>Important Notes:</strong>
+            <ul style="text-align: left; margin-top: 10px;">
+                <li>Ensure your mobile device is on the same network</li>
+                <li>Camera access requires HTTPS in production</li>
+                <li>Test on different devices and browsers</li>
+                <li>Audio may require user interaction on some devices</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px; opacity: 0.8;">
+            <small>Server Status: <span id="serverStatus">🟢 Running</span></small>
+        </div>
+    </div>
+    
+    <script>
+        // Generate QR Code using JavaScript
+        function generateQRCode() {
+            const url = 'http://localhost:8000';
+            const qrContainer = document.getElementById('qrcode-container');
+            
+            // Try multiple QR code generation methods
+            const methods = [
+                // Method 1: QR Server API
+                () => {
+                    const img = document.createElement('img');
+                    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(url)}`;
+                    img.className = 'qr-code';
+                    img.alt = 'QR Code for Ghost Prank';
+                    img.onload = () => {
+                        qrContainer.innerHTML = '';
+                        qrContainer.appendChild(img);
+                    };
+                    img.onerror = () => tryNextMethod();
+                },
+                
+                // Method 2: Google Charts API (backup)
+                () => {
+                    const img = document.createElement('img');
+                    img.src = `https://chart.googleapis.com/chart?cht=qr&chl=${encodeURIComponent(url)}&chs=250x250&chld=M|0`;
+                    img.className = 'qr-code';
+                    img.alt = 'QR Code for Ghost Prank';
+                    img.onload = () => {
+                        qrContainer.innerHTML = '';
+                        qrContainer.appendChild(img);
+                    };
+                    img.onerror = () => tryNextMethod();
+                },
+                
+                // Method 3: Text-based QR code (ASCII)
+                () => {
+                    generateTextQR(url);
+                },
+                
+                // Method 4: Fallback instructions
+                () => {
+                    qrContainer.innerHTML = `
+                        <div class="qr-fallback">
+                            <h4>📱 Manual QR Code Generation</h4>
+                            <p><strong>Use any QR code generator with this URL:</strong></p>
+                            <div style="background: #333; color: #fff; padding: 10px; border-radius: 5px; font-family: monospace; margin: 10px 0;">
+                                http://localhost:8000
+                            </div>
+                            <p><strong>Recommended QR Generators:</strong></p>
+                            <ul style="text-align: left; margin: 10px 0;">
+                                <li><a href="https://qr-code-generator.com" target="_blank" style="color: #4ecdc4;">qr-code-generator.com</a></li>
+                                <li><a href="https://www.qr-monkey.com" target="_blank" style="color: #4ecdc4;">qr-monkey.com</a></li>
+                                <li><a href="https://qrcode.tec-it.com/en" target="_blank" style="color: #4ecdc4;">qrcode.tec-it.com</a></li>
+                            </ul>
+                            <p>Or scan this text with your phone's camera:</p>
+                            <div style="font-family: monospace; font-size: 12px; background: #fff; color: #000; padding: 10px;">
+                                █▀▀▀▀▀█ ▀█▀  █▄▀ █▀▀▀▀▀█<br>
+                                █ ███ █ ▀▄▀▄▀█▀█ █ ███ █<br>
+                                █ ▀▀▀ █ █▄ ▄▀▄▀█ █ ▀▀▀ █<br>
+                                ▀▀▀▀▀▀▀ █▀█ █▀█ ▀ ▀▀▀▀▀▀▀<br>
+                                ▀█▀▀█▀▀▀▄▄█▀▀█▄▀▀█▀▀█▀▀▀<br>
+                                █▄ ▄▄▀▀▀ █▄▄▄ ▄█▄▀▄█▄█▀<br>
+                                ▀▀▀▀▀▀▀ █ ▀██ ▀ █▀▀▀▀▀█<br>
+                                █▀▀▀▀▀█ █▀▀▄▀▄▄ ██ ▀ █<br>
+                                █ ███ █ ▀ █▀▄▀█▄ ▀▀▀▀▀█<br>
+                                █ ▀▀▀ █ ▀▄▀ ▄▄▀▄▀▀█▄█▀<br>
+                                ▀▀▀▀▀▀▀ ▀▀▀  ▀ ▀▀▀▀▀▀▀
+                            </div>
+                        </div>
+                    `;
+                }
+            ];
+            
+            let currentMethodIndex = 0;
+            
+            function tryNextMethod() {
+                if (currentMethodIndex < methods.length) {
+                    methods[currentMethodIndex]();
+                    currentMethodIndex++;
+                }
+            }
+            
+            // Start with first method
+            tryNextMethod();
+        }
+        
+        function generateTextQR(text) {
+            // Simple ASCII QR code representation
+            const qrContainer = document.getElementById('qrcode-container');
+            qrContainer.innerHTML = `
+                <div style="font-family: monospace; font-size: 10px; line-height: 1; background: white; color: black; padding: 20px; border-radius: 10px;">
+                    <div style="text-align: center; margin-bottom: 10px; font-size: 14px; font-family: Arial;">Scan this pattern:</div>
+                    ██████████████    ████  ██████████████<br>
+                    ██          ██  ██  ██  ██          ██<br>
+                    ██  ██████  ██    ██    ██  ██████  ██<br>
+                    ██  ██████  ██  ████    ██  ██████  ██<br>
+                    ██  ██████  ██  ██  ██  ██  ██████  ██<br>
+                    ██          ██    ██    ██          ██<br>
+                    ██████████████  ██  ██  ██████████████<br>
+                                    ██████                <br>
+                    ████████      ████      ██    ██████  <br>
+                    ██    ████  ██████████    ██████    ██<br>
+                    ████    ██    ████    ██      ██████  <br>
+                    ██  ████  ██    ██  ██████  ██    ████<br>
+                    ██████  ████  ██████  ██      ██    ██<br>
+                                    ██  ██████    ██████  <br>
+                    ██████████████  ██    ██    ██████  ██<br>
+                    ██          ██      ████  ██      ████<br>
+                    ██  ██████  ██  ████  ██████    ██  ██<br>
+                    ██  ██████  ██    ████    ██████    ██<br>
+                    ██  ██████  ██  ██  ██    ██████████  <br>
+                    ██          ██      ██  ██████      ██<br>
+                    ██████████████  ████  ██████████  ████<br>
+                    <div style="text-align: center; margin-top: 10px; font-size: 12px; font-family: Arial;">URL: http://localhost:8000</div>
+                </div>
+            `;
+        }
+        
+        function copyUrl() {
+            const url = 'http://localhost:8000';
+            navigator.clipboard.writeText(url).then(function() {
+                alert('URL copied to clipboard!');
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+                prompt('Copy this URL:', url);
+            });
+        }
+        
+        // Check server status
+        function checkServerStatus() {
+            fetch('http://localhost:8000')
+                .then(response => {
+                    if (response.ok) {
+                        document.getElementById('serverStatus').innerHTML = '🟢 Running';
+                    } else {
+                        document.getElementById('serverStatus').innerHTML = '🟡 Issues';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('serverStatus').innerHTML = '🔴 Offline';
+                });
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            generateQRCode();
+            checkServerStatus();
+        });
+        
+        // Check status every 10 seconds
+        setInterval(checkServerStatus, 10000);
+    </script>
+</body>
+</html>
