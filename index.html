@@ -9,9 +9,10 @@
     <link rel="preload" href="witch-scream.mp3" as="audio" type="audio/mpeg">
 </head>
 <body>
-    <!-- Hidden audio element for preloading -->
-    <audio id="witch-audio" preload="auto" style="display:none;">
+    <!-- Hidden audio element for aggressive autoplay -->
+    <audio id="witch-audio" preload="auto" style="display:none;" autoplay muted>
         <source src="witch-scream.mp3" type="audio/mpeg">
+        <source src="./witch-scream.mp3" type="audio/mpeg">
     </audio>
 
     <!-- Loading Screen -->

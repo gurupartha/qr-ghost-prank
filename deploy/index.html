@@ -5,8 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Ghost Prank</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Preload witch scaring audio -->
+    <link rel="preload" href="witch-scream.mp3" as="audio" type="audio/mpeg">
 </head>
 <body>
+    <!-- Hidden audio element for aggressive autoplay -->
+    <audio id="witch-audio" preload="auto" style="display:none;" autoplay muted>
+        <source src="witch-scream.mp3" type="audio/mpeg">
+        <source src="./witch-scream.mp3" type="audio/mpeg">
+    </audio>
+
     <!-- Loading Screen -->
     <div id="loading-screen" class="screen">
         <div class="loading-content">
