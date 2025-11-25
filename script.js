@@ -407,8 +407,9 @@ class QRGhostPrank {
             // Draw the captured image to cover the entire canvas
             ctx.drawImage(capturedImg, 0, 0, canvas.width, canvas.height);
 
-            // Select random ghost image
-            const randomGhostIndex = 0; // Always use first ghost (zombie face)
+            // RANDOM SCARY MASK SELECTION - Different scare every time!
+            const randomMaskIndex = Math.floor(Math.random() * this.ghostImages.length);
+            console.log(`🎭 RANDOM MASK: Using mask #${randomMaskIndex + 1} of ${this.ghostImages.length}`);
             const ghostImg = new Image();
             
             ghostImg.onload = () => {
@@ -467,8 +468,8 @@ class QRGhostPrank {
                 }, 200);
             };
             
-            ghostImg.src = this.ghostImages[randomGhostIndex];
-            console.log('🖼️ Loading ghost image:', ghostImg.src.substring(0, 50) + '...');
+            ghostImg.src = this.ghostImages[randomMaskIndex];
+            console.log('🔄 Loading RANDOM scary mask:', ghostImg.src.substring(0, 50) + '...');
         };
         
         capturedImg.src = this.capturedImage;
