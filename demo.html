@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Ghost Prank - Demo Mode</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Demo Mode Screen -->
+    <div id="demo-screen" class="screen">
+        <div class="demo-content">
+            <h2>👻 Ghost Prank Demo Mode</h2>
+            <p>No camera needed! Click below to see instant ghost effects:</p>
+            <button id="instant-ghost" class="btn-primary" style="margin: 20px; font-size: 18px; padding: 15px 30px;">
+                🎭 Instant Ghost Effect
+            </button>
+            <p style="margin-top: 20px; font-size: 14px; opacity: 0.8;">
+                Demo mode shows ghost effects without camera access
+            </p>
+        </div>
+    </div>
+
+    <!-- Ghost Effect Screen -->
+    <div id="ghost-screen" class="screen hidden">
+        <div class="ghost-container">
+            <canvas id="ghost-canvas"></canvas>
+        </div>
+    </div>
+
+    <!-- Audio elements -->
+    <audio id="witch-audio" preload="auto" loop>
+        <source src="./witch-scream.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        class DemoGhostPrank {
+            constructor() {
+                this.ghostImages = [
+                    'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGZpbHRlciBpZD0iZ2xvdyI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMyIvPjxmZU1lcmdlPjxmZU1lcmdlTm9kZS8+PGZlTWVyZ2VOb2RlIGluPSJTb3VyY2VHcmFwaGljIi8+PC9mZU1lcmdlPjwvZmlsdGVyPjwvZGVmcz48ZWxsaXBzZSBjeD0iMTUwIiBjeT0iMTgwIiByeD0iMTIwIiByeT0iMTMwIiBmaWxsPSIjMDkwOTA5IiBzdHJva2U9IiNGRjAwMDAiIHN0cm9rZS13aWR0aD0iOCIgZmlsdGVyPSJ1cmwoI2dsb3cpIi8+PGVsbGlwc2UgY3g9IjEyMCIgY3k9IjE0MCIgcng9IjIwIiByeT0iMzAiIGZpbGw9IiMwMDAwMDAiLz48ZWxsaXBzZSBjeD0iMTgwIiBjeT0iMTQwIiByeD0iMjAiIHJ5PSIzMCIgZmlsbD0iIzAwMDAwMCIvPjxjaXJjbGUgY3g9IjEyMCIgY3k9IjEzNSIgcj0iNSIgZmlsbD0iI0ZGMDAwMCIvPjxjaXJjbGUgY3g9IjE4MCIgY3k9IjEzNSIgcj0iNSIgZmlsbD0iI0ZGMDAwMCIvPjxlbGxpcHNlIGN4PSIxNTAiIGN5PSIxOTAiIHJ4PSI0MCIgcnk9IjI1IiBmaWxsPSIjMDAwMDAwIi8+PHBhdGggZD0iTTEyMCAxOTAgTDE4MCAyMTAgTDE3MCAyMzAgTDEzMCAyMjUgWiIgZmlsbD0iIzMzMDAwMCIvPjxwYXRoIGQ9Ik0xMzAgMTkwIEwxNzAgMTkwIEwxNjUgMjEwIEwxMzUgMjEwIFoiIGZpbGw9IiM2NjAwMDAiLz48cGF0aCBkPSJNMTMwIDIwMCBMMTcwIDIwMCIgc3Ryb2tlPSIjRkYwMDAwIiBzdHJva2Utd2lkdGg9IjMiLz48cmVjdCB4PSIxMjgiIHk9IjE4NSIgd2lkdGg9IjgiIGhlaWdodD0iMjAiIGZpbGw9IiNGRkZGRkYiLz48cmVjdCB4PSIxNDUiIHk9IjE4NSIgd2lkdGg9IjgiIGhlaWdodD0iMjAiIGZpbGw9IiNGRkZGRkYiLz48cmVjdCB4PSIxNjIiIHk9IjE4NSIgd2lkdGg9IjgiIGhlaWdodD0iMjAiIGZpbGw9IiNGRkZGRkYiLz48cGF0aCBkPSJNMTEwIDEyMCBMMTIwIDEwMCBMMTMwIDEyMCIgZmlsbD0iI0ZGMDAwMCIvPjxwYXRoIGQ9Ik0xNzAgMTIwIEwxODAgMTAwIEwxOTAgMTIwIiBmaWxsPSIjRkYwMDAwIi8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTcwIiByPSI4IiBmaWxsPSIjRkYwMDAwIi8+PGNpcmNsZSBjeD0iMjAwIiBjeT0iMTcwIiByPSI4IiBmaWxsPSIjRkYwMDAwIi8+PGNpcmNsZSBjeD0iMTMwIiBjeT0iMjQwIiByPSI2IiBmaWxsPSIjRkYwMDAwIi8+PGNpcmNsZSBjeD0iMTcwIiBjeT0iMjQwIiByPSI2IiBmaWxsPSIjRkYwMDAwIi8+PC9zdmc+'
+                ];
+                this.init();
+            }
+
+            init() {
+                console.log('🎭 Demo Ghost Prank initialized');
+                document.getElementById('instant-ghost').addEventListener('click', () => {
+                    this.createDemoGhost();
+                });
+            }
+
+            createDemoGhost() {
+                console.log('👻 Creating demo ghost effect...');
+                
+                // Create demo face image
+                const demoImage = new Image();
+                demoImage.src = 'data:image/svg+xml;base64,' + btoa(`
+                    <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="400" height="300" fill="#f0f0f0"/>
+                        <ellipse cx="200" cy="150" rx="80" ry="100" fill="#ffdbac" stroke="#ddd" stroke-width="2"/>
+                        <circle cx="180" cy="130" r="8" fill="#333"/>
+                        <circle cx="220" cy="130" r="8" fill="#333"/>
+                        <ellipse cx="200" cy="160" rx="3" ry="8" fill="#333"/>
+                        <ellipse cx="200" cy="180" rx="20" ry="8" fill="#333"/>
+                        <text x="200" y="250" text-anchor="middle" font-family="Arial" font-size="16" fill="#666">Demo Person</text>
+                    </svg>
+                `);
+
+                demoImage.onload = () => {
+                    this.applyGhostEffect(demoImage);
+                };
+            }
+
+            applyGhostEffect(sourceImage) {
+                const canvas = document.getElementById('ghost-canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Set canvas size
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                
+                // Draw the source image
+                const scale = Math.min(canvas.width / sourceImage.width, canvas.height / sourceImage.height) * 0.8;
+                const x = (canvas.width - sourceImage.width * scale) / 2;
+                const y = (canvas.height - sourceImage.height * scale) / 2;
+                
+                ctx.drawImage(sourceImage, x, y, sourceImage.width * scale, sourceImage.height * scale);
+                
+                // Apply ghost effects like the original
+                const ghostImg = new Image();
+                ghostImg.src = this.ghostImages[0];
+                
+                ghostImg.onload = () => {
+                    // Medium blood level effects
+                    ctx.globalCompositeOperation = 'overlay';
+                    ctx.globalAlpha = 0.7;
+                    
+                    // Draw ghosts
+                    const positions = [
+                        { x: canvas.width * 0.15, y: canvas.height * 0.15, size: 0.5 },
+                        { x: canvas.width * 0.6, y: canvas.height * 0.3, size: 0.6 },
+                        { x: canvas.width * 0.25, y: canvas.height * 0.55, size: 0.5 },
+                        { x: canvas.width * 0.7, y: canvas.height * 0.7, size: 0.4 }
+                    ];
+
+                    positions.forEach(pos => {
+                        const size = Math.min(canvas.width, canvas.height) * pos.size;
+                        ctx.drawImage(ghostImg, pos.x, pos.y, size, size);
+                    });
+
+                    // Blood tint
+                    ctx.globalCompositeOperation = 'overlay';
+                    ctx.globalAlpha = 0.4;
+                    ctx.fillStyle = '#cc2222';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Vignette
+                    const vignette = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width/2);
+                    vignette.addColorStop(0, 'rgba(0,0,0,0)');
+                    vignette.addColorStop(0.7, 'rgba(0,0,0,0.3)');
+                    vignette.addColorStop(1, 'rgba(0,0,0,0.6)');
+                    ctx.globalCompositeOperation = 'overlay';
+                    ctx.globalAlpha = 0.8;
+                    ctx.fillStyle = vignette;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    // Show result
+                    document.getElementById('demo-screen').classList.add('hidden');
+                    document.getElementById('ghost-screen').classList.remove('hidden');
+                    
+                    // Play audio
+                    this.playAudio();
+                    
+                    // Add download button
+                    setTimeout(() => {
+                        const downloadBtn = document.createElement('button');
+                        downloadBtn.innerHTML = '📸 Save Ghost Photo';
+                        downloadBtn.style.cssText = `
+                            position: fixed;
+                            bottom: 20px;
+                            right: 20px;
+                            background: #ff3333;
+                            color: white;
+                            border: none;
+                            padding: 12px 20px;
+                            border-radius: 25px;
+                            font-size: 14px;
+                            font-weight: bold;
+                            cursor: pointer;
+                            z-index: 1000;
+                            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+                        `;
+                        
+                        downloadBtn.onclick = () => {
+                            canvas.toBlob((blob) => {
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = `demo-ghost-${Date.now()}.png`;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                URL.revokeObjectURL(url);
+                            }, 'image/png');
+                        };
+                        
+                        document.body.appendChild(downloadBtn);
+                        
+                        setTimeout(() => {
+                            if (downloadBtn && downloadBtn.parentNode) {
+                                downloadBtn.parentNode.removeChild(downloadBtn);
+                            }
+                        }, 15000);
+                    }, 3000);
+                };
+            }
+
+            playAudio() {
+                const audio = document.getElementById('witch-audio');
+                if (audio) {
+                    audio.play().catch(e => console.log('Audio play failed:', e));
+                }
+            }
+        }
+
+        new DemoGhostPrank();
+    </script>
+</body>
+</html>

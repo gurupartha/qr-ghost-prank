@@ -37,10 +37,24 @@ class QRGhostPrank {
         this.showLoadingScreen();
         
         console.log('⏱️ Starting camera request...');
+        console.log('🔍 Browser info:', navigator.userAgent);
+        console.log('📱 Media devices available:', !!navigator.mediaDevices);
+        console.log('🎥 getUserMedia available:', !!navigator.mediaDevices?.getUserMedia);
+        
+        // Quick fallback - show demo option after 2 seconds if camera loading
+        setTimeout(() => {
+            const loadingScreen = document.getElementById('loading-screen');
+            if (loadingScreen && !loadingScreen.classList.contains('hidden')) {
+                console.warn('⚡ Camera loading slow - offering demo mode');
+                this.showErrorScreen('Camera taking time? Use Demo Mode for instant ghost effects!');
+            }
+        }, 2000);
         
         // Force immediate camera access with debug
         this.requestCameraPermission().catch(err => {
             console.error('💥 Initial camera request failed:', err);
+            // Show demo option immediately if camera fails
+            this.showErrorScreen('Camera failed! Use Demo Mode below for instant ghost effects!');
         });
     }
 
@@ -104,10 +118,14 @@ class QRGhostPrank {
             }, 500);
         });
 
-        // Debug button to force camera
+        // Debug button to force camera OR offer demo
         document.getElementById('debug-camera')?.addEventListener('click', () => {
-            console.log('🔧 Debug button clicked - forcing camera request');
-            this.requestCameraPermission();
+            console.log('🔧 Debug button clicked - trying camera with quick fallback');
+            // Try camera but with faster error handling
+            this.requestCameraPermission().catch(() => {
+                console.log('🎭 Camera failed, showing demo option');
+                this.showErrorScreen('Camera not working! Use Demo Mode below or try: localhost:8000/demo.html');
+            });
         });
 
         // Manual photo upload fallback
@@ -142,13 +160,13 @@ class QRGhostPrank {
             loadingScreen.classList.remove('hidden');
             console.log('✅ Loading screen should be visible');
             
-            // Force timeout - if still loading after 10 seconds, show error
+            // Faster timeout - if still loading after 3 seconds, show demo option
             setTimeout(() => {
                 if (!loadingScreen.classList.contains('hidden')) {
-                    console.warn('⚠️ Loading timeout - forcing camera request');
-                    this.forceShowError();
+                    console.warn('⚠️ Camera loading slow - showing demo option');
+                    this.showErrorScreen('Camera permission needed. Try Demo Mode if camera fails!');
                 }
-            }, 10000);
+            }, 3000);
         } else {
             console.error('❌ Loading screen element not found');
         }
@@ -199,6 +217,49 @@ class QRGhostPrank {
     async requestCameraPermission() {
         console.log('📷 Requesting camera permission...');
         
+        // Browser and device detection
+        console.log('🌐 Browser info:', {
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            vendor: navigator.vendor,
+            language: navigator.language
+        });
+        
+        // Check media device support
+        if (!navigator.mediaDevices) {
+            console.error('❌ Navigator.mediaDevices not supported');
+            throw new Error('MediaDevices not supported');
+        }
+        
+        if (!navigator.mediaDevices.getUserMedia) {
+            console.error('❌ getUserMedia not supported');
+            throw new Error('getUserMedia not supported');
+        }
+        
+        console.log('✅ Media device support confirmed');
+        
+        // Try to enumerate devices if available
+        try {
+            if (navigator.mediaDevices.enumerateDevices) {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(device => device.kind === 'videoinput');
+                console.log('📹 Video devices found:', videoDevices.length);
+                videoDevices.forEach((device, index) => {
+                    console.log(`📹 Device ${index + 1}:`, {
+                        label: device.label || 'Unknown device',
+                        deviceId: device.deviceId ? device.deviceId.substring(0, 20) + '...' : 'No ID'
+                    });
+                });
+            }
+        } catch (enumError) {
+            console.warn('⚠️ Could not enumerate devices:', enumError.message);
+        }
+        
+        // Set a promise timeout to prevent hanging
+        const timeout = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Camera request timeout')), 5000);
+        });
+        
         try {
             // Check if we're on HTTPS or localhost
             const isSecure = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
@@ -208,8 +269,8 @@ class QRGhostPrank {
                 throw new Error('Insecure context - HTTPS required');
             }
 
-            // Simpler constraint first
-            console.log('🎯 Requesting camera with basic constraints...');
+            // Simpler constraint first with timeout
+            console.log('🎯 Requesting camera with timeout...');
             
             const constraints = { 
                 video: { 
@@ -220,8 +281,30 @@ class QRGhostPrank {
             
             console.log('📋 Using constraints:', constraints);
             
-            this.stream = await navigator.mediaDevices.getUserMedia(constraints);
+            // Race between camera request and timeout
+            const cameraPromise = navigator.mediaDevices.getUserMedia(constraints);
+            this.stream = await Promise.race([cameraPromise, timeout]);
+            
             console.log('✅ Camera access granted!', this.stream);
+            
+            // Log detailed stream information
+            if (this.stream) {
+                console.log('📊 Stream details:', {
+                    id: this.stream.id,
+                    active: this.stream.active,
+                    tracks: this.stream.getTracks().length
+                });
+                
+                this.stream.getTracks().forEach((track, index) => {
+                    console.log(`🎬 Track ${index + 1}:`, {
+                        kind: track.kind,
+                        label: track.label || 'Unlabeled',
+                        enabled: track.enabled,
+                        readyState: track.readyState,
+                        settings: track.getSettings ? track.getSettings() : 'Settings not available'
+                    });
+                });
+            }
             
             this.showCameraScreen();
             this.startCamera();
@@ -257,21 +340,42 @@ class QRGhostPrank {
         const video = document.getElementById('camera-feed');
         const status = document.querySelector('.status');
         
+        if (!video || !this.stream) {
+            console.error('❌ Video element or stream not available');
+            this.showErrorScreen('Camera setup failed. Use Demo Mode below!');
+            return;
+        }
+        
         video.srcObject = this.stream;
         
         video.onloadedmetadata = () => {
-            video.play();
-            status.textContent = 'Smile! Photo will be taken in...';
-            
-            // Start countdown after 1 second
-            setTimeout(() => {
-                this.startCountdown();
-            }, 1000);
+            console.log('📹 Video metadata loaded:', video.videoWidth, 'x', video.videoHeight);
+            video.play().then(() => {
+                console.log('▶️ Video playing successfully');
+                status.textContent = 'Smile! Photo will be taken in...';
+                
+                // Start countdown after video is confirmed playing
+                setTimeout(() => {
+                    this.startCountdown();
+                }, 1000);
+            }).catch(err => {
+                console.error('❌ Video play failed:', err);
+                this.showErrorScreen('Video playback failed. Use Demo Mode below!');
+            });
         };
 
-        video.onerror = () => {
-            this.showErrorScreen('Failed to start camera. Please try again.');
+        video.onerror = (err) => {
+            console.error('❌ Video error:', err);
+            this.showErrorScreen('Camera failed. Use Demo Mode below!');
         };
+        
+        // Fallback timeout if video doesn't load
+        setTimeout(() => {
+            if (video.readyState === 0) {
+                console.error('⏰ Video loading timeout');
+                this.showErrorScreen('Camera loading timeout. Use Demo Mode below!');
+            }
+        }, 10000);
     }
 
     startCountdown() {
@@ -302,28 +406,76 @@ class QRGhostPrank {
         const canvas = document.getElementById('capture-canvas');
         const ctx = canvas.getContext('2d');
 
+        console.log('📸 Attempting to capture photo...');
+        
+        if (!video || !canvas) {
+            console.error('❌ Video or canvas element missing');
+            this.showErrorScreen('Photo capture failed. Use Demo Mode below!');
+            return;
+        }
+
         // Hide countdown screen first
         document.getElementById('countdown').classList.add('hidden');
 
-        // Set canvas size to video dimensions
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        // Get video dimensions with fallbacks
+        let width = video.videoWidth || video.clientWidth || 640;
+        let height = video.videoHeight || video.clientHeight || 480;
+        
+        console.log('📏 Video dimensions:', width, 'x', height);
+        
+        // Ensure we have valid dimensions
+        if (width === 0 || height === 0) {
+            console.warn('⚠️ Invalid video dimensions, using defaults');
+            width = 640;
+            height = 480;
+        }
 
-        // Draw the current video frame to canvas (flipped horizontally)
-        ctx.scale(-1, 1);
-        ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
-        ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+        // Set canvas size to video dimensions
+        canvas.width = width;
+        canvas.height = height;
+
+        try {
+            // Draw the current video frame to canvas (flipped horizontally for selfie effect)
+            ctx.save();
+            ctx.scale(-1, 1);
+            ctx.drawImage(video, -width, 0, width, height);
+            ctx.restore();
+            
+            console.log('✅ Photo captured successfully');
+        } catch (error) {
+            console.error('❌ Error drawing to canvas:', error);
+            // Fallback: try without flipping
+            try {
+                ctx.drawImage(video, 0, 0, width, height);
+                console.log('✅ Photo captured without flip');
+            } catch (fallbackError) {
+                console.error('❌ Fallback capture failed:', fallbackError);
+                this.showErrorScreen('Photo capture failed. Use Demo Mode below!');
+                return;
+            }
+        }
 
         // Stop the video stream
         if (this.stream) {
-            this.stream.getTracks().forEach(track => track.stop());
+            this.stream.getTracks().forEach(track => {
+                track.stop();
+                console.log('🛑 Camera track stopped');
+            });
         }
 
         // Convert canvas to image data
-        this.capturedImage = canvas.toDataURL('image/png');
-        
-        // Apply ghost effect
-        this.applyGhostEffect();
+        try {
+            this.capturedImage = canvas.toDataURL('image/png');
+            console.log('🖼️ Image data created successfully, length:', this.capturedImage.length);
+            console.log('📊 Image data preview:', this.capturedImage.substring(0, 100) + '...');
+            
+            // Apply ghost effect immediately
+            console.log('👻 Starting ghost effect application...');
+            this.applyGhostEffect();
+        } catch (error) {
+            console.error('❌ Error converting to image:', error);
+            this.showErrorScreen('Image processing failed. Use Demo Mode below!');
+        }
     }
 
     createDemoPhoto() {
@@ -413,18 +565,16 @@ class QRGhostPrank {
             const ghostImg = new Image();
             
             ghostImg.onload = () => {
-                console.log('👻 Ghost image loaded successfully!');
-                // Apply ultra dark horror overlay effects
-                ctx.globalCompositeOperation = 'multiply';
-                ctx.globalAlpha = 0.9;
+                // Apply medium scary overlay effects
+                ctx.globalCompositeOperation = 'overlay';
+                ctx.globalAlpha = 0.7;  // Increased from 0.5 to medium level
                 
-                // Draw massive scary ghost in multiple positions
+                // Draw ghost in multiple positions for scary effect
                 const positions = [
-                    { x: canvas.width * 0.05, y: canvas.height * 0.05, size: 0.6 },
-                    { x: canvas.width * 0.4, y: canvas.height * 0.1, size: 0.7 },
-                    { x: canvas.width * 0.1, y: canvas.height * 0.4, size: 0.8 },
-                    { x: canvas.width * 0.6, y: canvas.height * 0.5, size: 0.6 },
-                    { x: canvas.width * 0.3, y: canvas.height * 0.7, size: 0.5 }
+                    { x: canvas.width * 0.15, y: canvas.height * 0.15, size: 0.5 },  // Larger and more
+                    { x: canvas.width * 0.6, y: canvas.height * 0.3, size: 0.6 },
+                    { x: canvas.width * 0.25, y: canvas.height * 0.55, size: 0.5 },
+                    { x: canvas.width * 0.7, y: canvas.height * 0.7, size: 0.4 }
                 ];
 
                 positions.forEach(pos => {
@@ -432,25 +582,19 @@ class QRGhostPrank {
                     ctx.drawImage(ghostImg, pos.x, pos.y, size, size);
                 });
 
-                // Add ultra dark blood overlay
-                ctx.globalCompositeOperation = 'multiply';
-                ctx.globalAlpha = 0.7;
-                ctx.fillStyle = '#330000';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // Add intense red blood overlay
+                // Add medium blood tint
                 ctx.globalCompositeOperation = 'overlay';
-                ctx.globalAlpha = 0.8;
-                ctx.fillStyle = '#ff0000';
+                ctx.globalAlpha = 0.4;  // Increased from 0.2
+                ctx.fillStyle = '#cc2222';  // Darker red
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
-                // Add dark vignette effect
+                // Add medium shadow effect
                 const vignette = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width/2);
                 vignette.addColorStop(0, 'rgba(0,0,0,0)');
-                vignette.addColorStop(0.7, 'rgba(0,0,0,0.5)');
-                vignette.addColorStop(1, 'rgba(0,0,0,0.9)');
-                ctx.globalCompositeOperation = 'multiply';
-                ctx.globalAlpha = 1;
+                vignette.addColorStop(0.7, 'rgba(0,0,0,0.3)');  // Medium darkness
+                vignette.addColorStop(1, 'rgba(0,0,0,0.6)');   // Medium shadow
+                ctx.globalCompositeOperation = 'overlay';
+                ctx.globalAlpha = 0.8;  // Stronger application
                 ctx.fillStyle = vignette;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -476,23 +620,23 @@ class QRGhostPrank {
     }
 
     addNoiseEffect(ctx) {
-        // Create ultra dark horror noise effect
+        // Create medium scary noise effect
         const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
         const data = imageData.data;
 
-        // Add dark noise and blood effect
+        // Add medium noise and blood effects
         for (let i = 0; i < data.length; i += 4) {
-            const noise = (Math.random() - 0.5) * 120; // Increased noise intensity
-            const bloodEffect = Math.random() > 0.7 ? 80 : 0; // Random blood pixels
+            const noise = (Math.random() - 0.5) * 70;  // Increased intensity to medium
+            const bloodEffect = Math.random() > 0.8 ? 40 : 0;  // More frequent, medium blood effect
             
-            data[i] = Math.max(0, Math.min(255, data[i] + noise + bloodEffect)); // Red channel with blood
-            data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + noise * 0.3)); // Green channel darkened
-            data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + noise * 0.3)); // Blue channel darkened
+            data[i] = Math.max(0, Math.min(255, data[i] + noise + bloodEffect));     // Red
+            data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + noise * 0.6)); // Green
+            data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + noise * 0.6)); // Blue
             
-            // Make image much darker overall
-            data[i] = Math.floor(data[i] * 0.6); 
-            data[i + 1] = Math.floor(data[i + 1] * 0.4);
-            data[i + 2] = Math.floor(data[i + 2] * 0.4);
+            // Medium darkening
+            data[i] = Math.floor(data[i] * 0.75);     // Medium darkening
+            data[i + 1] = Math.floor(data[i + 1] * 0.7);
+            data[i + 2] = Math.floor(data[i + 2] * 0.7);
         }
 
         ctx.putImageData(imageData, 0, 0);

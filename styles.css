@@ -297,37 +297,79 @@ body {
 }
 
 /* Mobile Optimizations */
-@media (max-width: 768px) {
+/* Tablet Portrait & Large Mobile */
+@media (max-width: 1024px) and (min-width: 769px) {
     .permission-content h2 {
-        font-size: 1.5rem;
+        font-size: 1.6rem;
     }
     
     .permission-content p {
-        font-size: 0.9rem;
+        font-size: 1rem;
     }
     
     .btn-primary, .btn-secondary {
-        padding: 12px 25px;
+        padding: 12px 24px;
         font-size: 1rem;
     }
     
     .countdown {
-        font-size: 6rem;
-    }
-    
-    .expired-content h1 {
-        font-size: 2rem;
-    }
-    
-    .expired-content p {
-        font-size: 1rem;
+        font-size: 7rem;
     }
 }
 
-/* Landscape Mobile */
-@media (max-height: 500px) and (orientation: landscape) {
-    .permission-content, .expired-content, .error-content {
-        transform: scale(0.8);
+/* Standard Mobile (Most phones) */
+@media (max-width: 768px) {
+    .permission-content h2 {
+        font-size: 1.2rem;  /* Reduced from 1.5rem */
+    }
+    
+    .permission-content p {
+        font-size: 0.8rem;  /* Reduced from 0.9rem */
+    }
+    
+    .btn-primary, .btn-secondary {
+        padding: 10px 20px;  /* Reduced padding */
+        font-size: 0.9rem;   /* Reduced from 1rem */
+    }
+    
+    .countdown {
+        font-size: 5rem;     /* Reduced from 6rem */
+    }
+    
+    .expired-content h1 {
+        font-size: 1.8rem;   /* Reduced from 2rem */
+    }
+    
+    .expired-content p {
+        font-size: 0.9rem;   /* Reduced from 1rem */
+    }
+    
+    .camera-icon {
+        font-size: 3.5rem;   /* Smaller for mobile */
+    }
+    
+    .warning-icon {
+        font-size: 3.5rem;
+    }
+}
+
+/* Medium Mobile Phones */
+@media (max-width: 480px) {
+    .permission-content h2 {
+        font-size: 1.1rem;
+    }
+    
+    .permission-content p {
+        font-size: 0.75rem;
+    }
+    
+    .btn-primary, .btn-secondary {
+        padding: 9px 18px;
+        font-size: 0.85rem;
+    }
+    
+    .countdown {
+        font-size: 4.5rem;
     }
     
     .camera-icon {
@@ -339,18 +381,104 @@ body {
     }
 }
 
-/* Very small screens */
-@media (max-width: 320px) {
+/* iPhone SE & Small Phones */
+@media (max-width: 375px) {
     .permission-content h2 {
-        font-size: 1.3rem;
+        font-size: 1.05rem;
+    }
+    
+    .permission-content p {
+        font-size: 0.7rem;
+        line-height: 1.3;
     }
     
     .btn-primary, .btn-secondary {
-        padding: 10px 20px;
-        font-size: 0.9rem;
+        padding: 8px 16px;
+        font-size: 0.8rem;
+        margin: 5px 0;
     }
     
     .countdown {
-        font-size: 5rem;
+        font-size: 4.2rem;
+    }
+    
+    .camera-icon {
+        font-size: 2.8rem;
+    }
+}
+
+/* Landscape Mobile (All sizes) */
+@media (max-height: 500px) and (orientation: landscape) {
+    .permission-content, .expired-content, .error-content {
+        transform: scale(0.75);  /* Slightly smaller */
+        padding: 10px;
+    }
+    
+    .camera-icon {
+        font-size: 2.5rem;
+    }
+    
+    .warning-icon {
+        font-size: 2.5rem;
+    }
+    
+    .countdown {
+        font-size: 3.5rem;
+    }
+}
+
+/* Extra Small Screens (Old phones) */
+@media (max-width: 320px) {
+    .permission-content h2 {
+        font-size: 1rem;
+    }
+    
+    .permission-content p {
+        font-size: 0.65rem;
+        line-height: 1.2;
+    }
+    
+    .btn-primary, .btn-secondary {
+        padding: 7px 14px;
+        font-size: 0.75rem;
+        margin: 3px 0;
+        width: 90%;
+        max-width: 200px;
+    }
+    
+    .countdown {
+        font-size: 3.8rem;
+    }
+    
+    .camera-icon {
+        font-size: 2.5rem;
+    }
+    
+    .warning-icon {
+        font-size: 2.5rem;
+    }
+}
+
+/* Ultra Small Screens */
+@media (max-width: 280px) {
+    .permission-content h2 {
+        font-size: 0.95rem;
+    }
+    
+    .permission-content p {
+        font-size: 0.6rem;
+    }
+    
+    .btn-primary, .btn-secondary {
+        padding: 6px 12px;
+        font-size: 0.7rem;
+    }
+    
+    .countdown {
+        font-size: 3.5rem;
+    }
+    
+    .camera-icon {
+        font-size: 2.2rem;
     }
 }
