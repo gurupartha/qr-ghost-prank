@@ -1,5 +1,18 @@
 class QRGhostPrank {
     constructor() {
+        // Android and mobile detection
+        this.isAndroid = /Android/i.test(navigator.userAgent);
+        this.isMobile = /Mobi|Android/i.test(navigator.userAgent);
+        this.audioContext = null;
+        this.audioUnlocked = false;
+        this.userInteracted = false;
+        
+        console.log('📱 Device detection:', {
+            isAndroid: this.isAndroid,
+            isMobile: this.isMobile,
+            userAgent: navigator.userAgent
+        });
+
         this.stream = null;
         this.capturedImage = null;
         this.linkExpired = false;
@@ -30,6 +43,9 @@ class QRGhostPrank {
             this.showErrorScreen('❌ Your browser does not support camera access. Please use a modern browser like Chrome, Firefox, or Safari.');
             return;
         }
+        
+        // Setup audio unlock for Android devices
+        this.setupAudioUnlock();
         
         // No expiry - QR code works forever for unlimited users
         console.log('🎃 QR Ghost Prank ready - No expiry, unlimited users!');
@@ -201,6 +217,96 @@ class QRGhostPrank {
     hideAllScreens() {
         const screens = document.querySelectorAll('.screen');
         screens.forEach(screen => screen.classList.add('hidden'));
+    }
+
+    setupAudioUnlock() {
+        // Android requires user interaction to unlock audio
+        console.log('🔊 Setting up audio unlock for Android compatibility...');
+        
+        const unlockEvents = ['touchstart', 'touchend', 'mousedown', 'keydown', 'click'];
+        
+        const unlockAudio = () => {
+            if (!this.audioUnlocked) {
+                console.log('🔓 Attempting to unlock audio for Android...');
+                this.unlockAudio();
+            }
+        };
+
+        unlockEvents.forEach(event => {
+            document.addEventListener(event, unlockAudio, { once: true, passive: true });
+        });
+        
+        // Also unlock when any button is clicked
+        document.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                this.unlockAudio();
+            }
+        });
+    }
+
+    async unlockAudio() {
+        if (this.audioUnlocked) return;
+        
+        try {
+            console.log('🎵 Unlocking audio context for Android...');
+            
+            // Create and resume AudioContext
+            if (!this.audioContext) {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            if (this.audioContext.state === 'suspended') {
+                await this.audioContext.resume();
+                console.log('✅ AudioContext resumed for Android');
+            }
+            
+            // Play a silent sound to unlock audio
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+            
+            gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+            oscillator.start(this.audioContext.currentTime);
+            oscillator.stop(this.audioContext.currentTime + 0.001);
+            
+            this.audioUnlocked = true;
+            this.userInteracted = true;
+            
+            console.log('🔊 Audio unlocked for Android! Ready for scary sounds.');
+            
+            // Pre-load audio elements after unlock
+            this.preloadAudioAfterUnlock();
+            
+        } catch (error) {
+            console.warn('⚠️ Audio unlock failed:', error);
+        }
+    }
+
+    preloadAudioAfterUnlock() {
+        const audioElement = document.getElementById('witch-audio');
+        if (audioElement && this.isAndroid) {
+            try {
+                audioElement.load();
+                audioElement.volume = 0.1;
+                
+                // Try to play and immediately pause to prime the element
+                const playPromise = audioElement.play();
+                if (playPromise) {
+                    playPromise.then(() => {
+                        audioElement.pause();
+                        audioElement.currentTime = 0;
+                        audioElement.volume = 0.8; // Reset to proper volume
+                        console.log('✅ Android audio element primed');
+                    }).catch(() => {
+                        console.log('⚠️ Audio priming failed, will try on ghost reveal');
+                    });
+                }
+            } catch (error) {
+                console.log('⚠️ Audio preload after unlock failed:', error);
+            }
+        }
     }
 
     forceShowError() {
@@ -645,9 +751,17 @@ class QRGhostPrank {
     playScarySounds() {
         console.log('🧙‍♀️ Playing REAL WITCH GHOST SCARING AUDIO!');
         console.log('📊 Audio context available:', !!window.AudioContext || !!window.webkitAudioContext);
+        console.log('📱 Android device:', this.isAndroid, 'Audio unlocked:', this.audioUnlocked);
         
-        // Try to play the witch audio first
-        this.playWitchAudio();
+        // For Android, ensure audio is unlocked first
+        if (this.isAndroid && !this.audioUnlocked) {
+            console.log('🔒 Audio not unlocked on Android, trying to unlock...');
+            this.unlockAudio().then(() => {
+                setTimeout(() => this.playWitchAudio(), 100);
+            });
+        } else {
+            this.playWitchAudio();
+        }
         
         // Add synthetic sounds as enhancement/backup
         setTimeout(() => {
@@ -675,8 +789,29 @@ class QRGhostPrank {
         if (witchAudio1) {
             try {
                 witchAudio1.muted = false;
-                witchAudio1.volume = 1.0;
-                witchAudio1.currentTime = 0;
+                
+                // Android-specific volume and handling
+                if (this.isAndroid) {
+                    witchAudio1.volume = 0.9; // Slightly lower for Android
+                    console.log('📱 Using Android-optimized volume: 0.9');
+                    
+                    // Android often needs a small delay
+                    setTimeout(() => {
+                        witchAudio1.currentTime = 0;
+                        const playPromise = witchAudio1.play();
+                        if (playPromise) {
+                            playPromise.then(() => {
+                                console.log('🧙‍♀️ SUCCESS! Android witch audio playing!');
+                            }).catch((error) => {
+                                console.log('❌ Android audio failed, trying fallback:', error.message);
+                                this.playAndroidAudioFallback();
+                            });
+                        }
+                    }, 50);
+                } else {
+                    witchAudio1.volume = 1.0;
+                    witchAudio1.currentTime = 0;
+                }
                 console.log('🎯 Attempting to FORCE play witch audio...');
                 
                 // Try to play immediately
@@ -733,6 +868,110 @@ class QRGhostPrank {
             
         } catch (error) {
             console.log('❌ All audio methods failed, using synthetic only');
+        }
+    }
+
+    playAndroidAudioFallback() {
+        console.log('📱 ANDROID-SPECIFIC AUDIO FALLBACK!');
+        
+        if (!this.audioUnlocked) {
+            console.log('🔒 Audio not unlocked, unlocking first...');
+            this.unlockAudio().then(() => {
+                setTimeout(() => this.playAndroidAudioFallback(), 100);
+            });
+            return;
+        }
+        
+        try {
+            // Method 1: Web Audio API with Android optimization
+            if (this.audioContext && this.audioContext.state === 'running') {
+                console.log('🎵 Using Web Audio API for Android...');
+                this.createAndroidScaryAudio();
+            }
+            
+            // Method 2: Multiple audio elements with Android-specific settings
+            const audioUrls = [
+                'witch-scream.mp3',
+                './witch-scream.mp3',
+                location.origin + '/witch-scream.mp3'
+            ];
+            
+            audioUrls.forEach((url, index) => {
+                setTimeout(() => {
+                    try {
+                        const audio = new Audio(url);
+                        audio.volume = 0.8; // Android-friendly volume
+                        audio.preload = 'auto';
+                        audio.crossOrigin = 'anonymous';
+                        
+                        // Android-specific event handling
+                        audio.addEventListener('canplaythrough', () => {
+                            console.log(`📱 Android audio ${index + 1} ready to play`);
+                            const playPromise = audio.play();
+                            if (playPromise) {
+                                playPromise.then(() => {
+                                    console.log(`🧙‍♀️ SUCCESS! Android witch audio ${index + 1} playing!`);
+                                }).catch((error) => {
+                                    console.log(`❌ Android audio ${index + 1} play failed:`, error.message);
+                                });
+                            }
+                        });
+                        
+                        audio.addEventListener('error', (e) => {
+                            console.log(`❌ Android audio ${index + 1} load error:`, e.message);
+                        });
+                        
+                        audio.load();
+                        
+                    } catch (error) {
+                        console.log(`❌ Android audio ${index + 1} creation failed:`, error);
+                    }
+                }, index * 100); // Stagger attempts
+            });
+            
+        } catch (error) {
+            console.log('❌ Android fallback failed, trying synthetic sounds:', error);
+            this.createAndroidScaryAudio();
+        }
+    }
+
+    createAndroidScaryAudio() {
+        if (!this.audioContext || this.audioContext.state !== 'running') {
+            console.log('⚠️ AudioContext not ready for Android synthetic audio');
+            return;
+        }
+        
+        try {
+            console.log('🎶 Creating synthetic scary sounds for Android...');
+            
+            // Create a more aggressive synthetic scream for Android
+            const frequencies = [100, 200, 400, 800, 1200];
+            const duration = 2;
+            
+            frequencies.forEach((freq, index) => {
+                setTimeout(() => {
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(freq, this.audioContext.currentTime);
+                    oscillator.type = index % 2 === 0 ? 'sawtooth' : 'square';
+                    
+                    gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0.3, this.audioContext.currentTime + 0.1);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+                    
+                    oscillator.start(this.audioContext.currentTime);
+                    oscillator.stop(this.audioContext.currentTime + duration);
+                    
+                    console.log(`🎵 Android synthetic sound ${index + 1} created at ${freq}Hz`);
+                }, index * 200);
+            });
+            
+        } catch (error) {
+            console.log('❌ Android synthetic audio failed:', error);
         }
     }
 
