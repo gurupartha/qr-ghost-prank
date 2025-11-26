@@ -70,8 +70,17 @@ class QRGhostPrank {
         this.requestCameraPermission().catch(err => {
             console.error('💥 Initial camera request failed:', err);
             // Show demo option immediately if camera fails
-            this.showErrorScreen('Camera failed! Use Demo Mode below for instant ghost effects!');
+            this.showErrorScreen('⚡ Camera failed! Use Demo Mode below for instant ghost effects!');
         });
+        
+        // Add super early timeout for impatient users (after just 800ms)
+        setTimeout(() => {
+            const loadingScreen = document.getElementById('loading-screen');
+            if (loadingScreen && !loadingScreen.classList.contains('hidden')) {
+                console.log('⚡ Adding early escape option for impatient users...');
+                this.addQuickDemoButton();
+            }
+        }, 800);
     }
 
     checkLinkExpiration() {
@@ -155,6 +164,12 @@ class QRGhostPrank {
             this.createDemoPhoto();
         });
 
+        document.getElementById('instant-demo')?.addEventListener('click', () => {
+            console.log('⚡ User chose instant demo from loading screen');
+            this.unlockAudio(); // Ensure audio is ready
+            window.location.href = 'demo.html';
+        });
+
         document.getElementById('photo-upload')?.addEventListener('change', (e) => {
             if (e.target.files && e.target.files[0]) {
                 const file = e.target.files[0];
@@ -176,13 +191,21 @@ class QRGhostPrank {
             loadingScreen.classList.remove('hidden');
             console.log('✅ Loading screen should be visible');
             
-            // Faster timeout - if still loading after 3 seconds, show demo option
+            // Ultra-fast timeout - if still loading after 1.5 seconds, show demo option
             setTimeout(() => {
                 if (!loadingScreen.classList.contains('hidden')) {
                     console.warn('⚠️ Camera loading slow - showing demo option');
-                    this.showErrorScreen('Camera permission needed. Try Demo Mode if camera fails!');
+                    this.showErrorScreen('⚡ Camera taking too long? Try Demo Mode for instant ghost effects!');
                 }
-            }, 3000);
+            }, 1500);
+            
+            // Add immediate demo option after just 500ms
+            setTimeout(() => {
+                if (!loadingScreen.classList.contains('hidden')) {
+                    console.log('🎮 Adding quick demo option...');
+                    this.addQuickDemoButton();
+                }
+            }, 500);
         } else {
             console.error('❌ Loading screen element not found');
         }
@@ -309,6 +332,60 @@ class QRGhostPrank {
         }
     }
 
+    addQuickDemoButton() {
+        // Add a floating quick demo button for impatient users
+        if (document.getElementById('quick-demo-btn')) return; // Don't add multiple
+        
+        console.log('🎮 Adding quick demo button for impatient users...');
+        
+        const quickBtn = document.createElement('button');
+        quickBtn.id = 'quick-demo-btn';
+        quickBtn.innerHTML = '⚡ SKIP TO DEMO';
+        quickBtn.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #ff6600, #ff3333);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: 0 4px 15px rgba(255,51,51,0.4);
+            animation: pulse 1s infinite;
+            backdrop-filter: blur(10px);
+        `;
+        
+        // Add pulsing animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); box-shadow: 0 4px 15px rgba(255,51,51,0.4); }
+                50% { transform: scale(1.05); box-shadow: 0 6px 20px rgba(255,51,51,0.6); }
+                100% { transform: scale(1); box-shadow: 0 4px 15px rgba(255,51,51,0.4); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        quickBtn.addEventListener('click', () => {
+            console.log('⚡ User chose quick demo option!');
+            this.unlockAudio(); // Ensure audio is ready
+            window.location.href = 'demo.html';
+        });
+        
+        document.body.appendChild(quickBtn);
+        
+        // Auto-remove after 10 seconds to avoid clutter
+        setTimeout(() => {
+            if (quickBtn && quickBtn.parentNode) {
+                quickBtn.parentNode.removeChild(quickBtn);
+            }
+        }, 10000);
+    }
+
     forceShowError() {
         console.log('🔧 Forcing error screen due to timeout');
         this.showErrorScreen('⚠️ Camera setup is taking too long. Click "Try Camera Again" or use manual photo option.');
@@ -361,9 +438,9 @@ class QRGhostPrank {
             console.warn('⚠️ Could not enumerate devices:', enumError.message);
         }
         
-        // Set a promise timeout to prevent hanging
+        // Set a promise timeout to prevent hanging (reduced for faster experience)
         const timeout = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Camera request timeout')), 5000);
+            setTimeout(() => reject(new Error('Camera request timeout')), 2000);
         });
         
         try {
@@ -475,13 +552,21 @@ class QRGhostPrank {
             this.showErrorScreen('Camera failed. Use Demo Mode below!');
         };
         
-        // Fallback timeout if video doesn't load
+        // Fallback timeout if video doesn't load (reduced to 3 seconds)
         setTimeout(() => {
             if (video.readyState === 0) {
                 console.error('⏰ Video loading timeout');
-                this.showErrorScreen('Camera loading timeout. Use Demo Mode below!');
+                this.showErrorScreen('⚡ Camera timeout! Use Demo Mode for instant effects!');
             }
-        }, 10000);
+        }, 3000);
+        
+        // Add progressive timeout warnings
+        setTimeout(() => {
+            if (video.readyState === 0) {
+                console.warn('⚠️ Video still loading after 1 second...');
+                this.addQuickDemoButton();
+            }
+        }, 1000);
     }
 
     startCountdown() {
